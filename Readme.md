@@ -1,6 +1,5 @@
-## Building a App for download count
+## Building a App for the book download count
 
-![App Screenshot](screenshot.png)
 
 ## Steps to Setup the Spring Boot Back end app (app-server)
 
