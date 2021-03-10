@@ -41,6 +41,16 @@ CREATE TABLE `books` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+CREATE TABLE `downloads` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `domain_address` varchar(20) NOT NULL,
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_downloads_book_id` (`book_id`),
+  CONSTRAINT `fk_downloads_book_id` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 CREATE TABLE `polls` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `question` varchar(140) NOT NULL,

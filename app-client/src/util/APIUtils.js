@@ -1,4 +1,4 @@
-import { API_BASE_URL, POLL_LIST_SIZE, ACCESS_TOKEN } from '../constants';
+import { API_BASE_URL, BOOK_LIST_SIZE, POLL_LIST_SIZE, ACCESS_TOKEN } from '../constants';
 
 const request = (options) => {
     const headers = new Headers({
@@ -22,6 +22,16 @@ const request = (options) => {
         })
     );
 };
+
+export function getAllBooks(page, size) {
+    page = page || 0;
+    size = size || BOOK_LIST_SIZE;
+
+    return request({
+        url: API_BASE_URL + "/books?page=" + page + "&size=" + size,
+        method: 'GET'
+    });
+}
 
 export function getAllPolls(page, size) {
     page = page || 0;
@@ -73,13 +83,6 @@ export function checkUsernameAvailability(username) {
     });
 }
 
-export function checkEmailAvailability(email) {
-    return request({
-        url: API_BASE_URL + "/user/checkEmailAvailability?email=" + email,
-        method: 'GET'
-    });
-}
-
 
 export function getCurrentUser() {
     if(!localStorage.getItem(ACCESS_TOKEN)) {
@@ -105,6 +108,16 @@ export function getUserCreatedPolls(username, page, size) {
 
     return request({
         url: API_BASE_URL + "/users/" + username + "/polls?page=" + page + "&size=" + size,
+        method: 'GET'
+    });
+}
+
+export function getUserCreatedBooks(username, page, size) {
+    page = page || 0;
+    size = size || BOOK_LIST_SIZE;
+
+    return request({
+        url: API_BASE_URL + "/users/" + username + "/books?page=" + page + "&size=" + size,
         method: 'GET'
     });
 }

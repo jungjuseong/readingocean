@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import { signup, checkUsernameAvailability, checkEmailAvailability } from '../../util/APIUtils';
+import { signup, checkUsernameAvailability } from '../../util/APIUtils';
 import './Signup.css';
 import { Link } from 'react-router-dom';
 import { 
     NAME_MIN_LENGTH, NAME_MAX_LENGTH, 
     USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH,
-    EMAIL_MAX_LENGTH,
     PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH
 } from '../../constants';
 
@@ -22,9 +21,6 @@ class Signup extends Component {
             username: {
                 value: ''
             },
-            email: {
-                value: ''
-            },
             password: {
                 value: ''
             }
@@ -32,7 +28,6 @@ class Signup extends Component {
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.validateUsernameAvailability = this.validateUsernameAvailability.bind(this);
-        this.validateEmailAvailability = this.validateEmailAvailability.bind(this);
         this.isFormInvalid = this.isFormInvalid.bind(this);
     }
 
@@ -49,25 +44,24 @@ class Signup extends Component {
         });
     }
 
-    handleSubmit(event) {
-        event.preventDefault();
+    handleSubmit(values) {
+        //event.preventDefault();
     
         const signupRequest = {
             name: this.state.name.value,
-            email: this.state.email.value,
             username: this.state.username.value,
             password: this.state.password.value
         };
         signup(signupRequest)
         .then(response => {
             notification.success({
-                message: 'Polling App',
+                message: 'ReadingOcean Admin',
                 description: "Thank you! You're successfully registered. Please Login to continue!",
             });          
             this.props.history.push("/login");
         }).catch(error => {
             notification.error({
-                message: 'Polling App',
+                message: 'ReadingOcean Admin',
                 description: error.message || 'Sorry! Something went wrong. Please try again!'
             });
         });
@@ -76,7 +70,6 @@ class Signup extends Component {
     isFormInvalid() {
         return !(this.state.name.validateStatus === 'success' &&
             this.state.username.validateStatus === 'success' &&
-            this.state.email.validateStatus === 'success' &&
             this.state.password.validateStatus === 'success'
         );
     }
@@ -86,7 +79,7 @@ class Signup extends Component {
             <div className="signup-container">
                 <h1 className="page-title">Sign Up</h1>
                 <div className="signup-content">
-                    <Form onSubmit={this.handleSubmit} className="signup-form">
+                    <Form onFinish={this.handleSubmit} className="signup-form">
                         <FormItem 
                             label="Full Name"
                             validateStatus={this.state.name.validateStatus}
@@ -111,21 +104,6 @@ class Signup extends Component {
                                 value={this.state.username.value} 
                                 onBlur={this.validateUsernameAvailability}
                                 onChange={(event) => this.handleInputChange(event, this.validateUsername)} />    
-                        </FormItem>
-                        <FormItem 
-                            label="Email"
-                            hasFeedback
-                            validateStatus={this.state.email.validateStatus}
-                            help={this.state.email.errorMsg}>
-                            <Input 
-                                size="large"
-                                name="email" 
-                                type="email" 
-                                autoComplete="off"
-                                placeholder="Your email"
-                                value={this.state.email.value} 
-                                onBlur={this.validateEmailAvailability}
-                                onChange={(event) => this.handleInputChange(event, this.validateEmail)} />    
                         </FormItem>
                         <FormItem 
                             label="Password"
@@ -172,35 +150,6 @@ class Signup extends Component {
                 validateStatus: 'success',
                 errorMsg: null,
               };            
-        }
-    }
-
-    validateEmail = (email) => {
-        if(!email) {
-            return {
-                validateStatus: 'error',
-                errorMsg: 'Email may not be empty'                
-            }
-        }
-
-        const EMAIL_REGEX = RegExp('[^@ ]+@[^@ ]+\\.[^@ ]+');
-        if(!EMAIL_REGEX.test(email)) {
-            return {
-                validateStatus: 'error',
-                errorMsg: 'Email not valid'
-            }
-        }
-
-        if(email.length > EMAIL_MAX_LENGTH) {
-            return {
-                validateStatus: 'error',
-                errorMsg: `Email is too long (Maximum ${EMAIL_MAX_LENGTH} characters allowed)`
-            }
-        }
-
-        return {
-            validateStatus: null,
-            errorMsg: null
         }
     }
 
@@ -270,60 +219,6 @@ class Signup extends Component {
             this.setState({
                 username: {
                     value: usernameValue,
-                    validateStatus: 'success',
-                    errorMsg: null
-                }
-            });
-        });
-    }
-
-    validateEmailAvailability() {
-        // First check for client side errors in email
-        const emailValue = this.state.email.value;
-        const emailValidation = this.validateEmail(emailValue);
-
-        if(emailValidation.validateStatus === 'error') {
-            this.setState({
-                email: {
-                    value: emailValue,
-                    ...emailValidation
-                }
-            });    
-            return;
-        }
-
-        this.setState({
-            email: {
-                value: emailValue,
-                validateStatus: 'validating',
-                errorMsg: null
-            }
-        });
-
-        checkEmailAvailability(emailValue)
-        .then(response => {
-            if(response.available) {
-                this.setState({
-                    email: {
-                        value: emailValue,
-                        validateStatus: 'success',
-                        errorMsg: null
-                    }
-                });
-            } else {
-                this.setState({
-                    email: {
-                        value: emailValue,
-                        validateStatus: 'error',
-                        errorMsg: 'This Email is already registered'
-                    }
-                });
-            }
-        }).catch(error => {
-            // Marking validateStatus as success, Form will be recchecked at server
-            this.setState({
-                email: {
-                    value: emailValue,
                     validateStatus: 'success',
                     errorMsg: null
                 }

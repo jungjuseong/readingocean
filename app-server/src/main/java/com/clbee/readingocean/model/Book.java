@@ -2,12 +2,14 @@ package com.clbee.readingocean.model;
 
 import com.clbee.readingocean.model.audit.DateAudit;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+@NoArgsConstructor
 @Getter
 @Setter
 @Entity

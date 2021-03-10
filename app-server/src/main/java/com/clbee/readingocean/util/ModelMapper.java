@@ -1,7 +1,9 @@
 package com.clbee.readingocean.util;
 
+import com.clbee.readingocean.model.Book;
 import com.clbee.readingocean.model.Poll;
 import com.clbee.readingocean.model.User;
+import com.clbee.readingocean.payload.BookResponse;
 import com.clbee.readingocean.payload.ChoiceResponse;
 import com.clbee.readingocean.payload.PollResponse;
 import com.clbee.readingocean.payload.UserSummary;
@@ -12,6 +14,24 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ModelMapper {
+
+    public static BookResponse mapBookToBookResponse(Book book, User creator) {
+
+        BookResponse response = new BookResponse();
+
+        response.setIsbn(book.getIsbn());
+        response.setTitle(book.getTitle());
+        response.setAuthors(book.getAuthors());
+        if (creator != null) {
+            response.setPublisher (creator.getUsername());
+        }
+        else {
+            response.setPublisher("clbee---");
+        }
+        response.setCreatedAt(book.getCreatedAt());
+
+        return response;
+    }
 
     public static PollResponse mapPollToPollResponse(Poll poll, Map<Long, Long> choiceVotesMap, User creator, Long userVote) {
 

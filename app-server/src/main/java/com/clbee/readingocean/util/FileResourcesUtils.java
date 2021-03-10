@@ -8,6 +8,7 @@ import com.clbee.readingocean.model.User;
 import com.clbee.readingocean.repository.BookRepository;
 import com.clbee.readingocean.repository.RoleRepository;
 import com.clbee.readingocean.repository.UserRepository;
+import com.clbee.readingocean.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,16 +27,7 @@ import java.util.*;
 public class FileResourcesUtils {
 
     @Autowired
-    PasswordEncoder passwordEncoder;
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    BookRepository bookRepository;
-
-    @Autowired
-    RoleRepository roleRepository;
+    BookService bookService;
 
     @Value("${datafile.books}")
     private String fileName;
@@ -60,7 +52,7 @@ public class FileResourcesUtils {
 
         while (iterator.hasNext()) {
             String key = iterator.next();
-            createUserAccount(key);
+            bookService.createUserAccount(key);
             //System.out.printf("INSERT INTO users (name, publisher, password) VALUES ('%s','%s','%s');\n", key, key, password);
         }
     }
@@ -83,44 +75,13 @@ public class FileResourcesUtils {
                     String publisher = splitted[4].replace("\"", "").trim();
                     String isbn = splitted[5].replace("\"", "").trim();
 
-                    // userSet.add(splitted[4]); // 출판사
-                    createUserAccount(splitted[4]);
-                    createBook(title,isbn,authors,publisher);
+                    bookService.createUserAccount(splitted[4]);
+                    Book book = bookService.createBook(title,isbn,authors,publisher);
                     //System.out.printf("INSERT INTO books (title, isbn, publisher, authors) VALUES ('%s','%s','%s','%s');\n",splitted[2],splitted[5],splitted[4],splitted[3]);
                 }
                 //printUniquePublishers(userSet);
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    private void createUserAccount(String name) {
-        // Creating user's account
-
-        if (!userRepository.existsByUsername(name)) {
-
-            final String password = passwordEncoder.encode("12345");
-            User user = new User(name, name, password);
-
-            Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-                    .orElseThrow(() -> new AppException("User Role not set."));
-
-            user.setRoles(Collections.singleton(userRole));
-            System.out.println(name);
-
-            userRepository.save(user);
-        }
-
-    }
-    private void createBook(String title, String isbn, String authors, String publisher) {
-        if (userRepository.existsByUsername(publisher)) {
-            User user = userRepository.findByUsername(publisher)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found with username : " + publisher)
-                    );
-
-            Book book = new Book(title, isbn, authors);
-            book.setUser(user);
-            bookRepository.save(book);
         }
     }
 

@@ -4,90 +4,91 @@ import './Login.css';
 import { Link } from 'react-router-dom';
 import { ACCESS_TOKEN } from '../../constants';
 
-import { Form, Input, Button, Icon, notification } from 'antd';
-const FormItem = Form.Item;
+import { Form, Input, Button, Checkbox, notification } from 'antd';
 
-class Login extends Component {
-    render() {
-        const AntWrappedLoginForm = Form.create()(LoginForm)
-        return (
-            <div className="login-container">
-                <h1 className="page-title">Login</h1>
-                <div className="login-content">
-                    <AntWrappedLoginForm onLogin={this.props.onLogin} />
-                </div>
+import { UserOutlined, LockOutlined } from '@ant-design/icons';
+
+function Login(props) {    
+    return (
+        <div className="login-container">
+            <h1 className="page-title">Login</h1>
+            <div className="login-content">
+                <LoginForm onLogin={props.onLogin}/>
             </div>
-        );
-    }
+        </div>
+    );
 }
 
-class LoginForm extends Component {
-    constructor(props) {
-        super(props);
-        this.handleSubmit = this.handleSubmit.bind(this);
-    }
+const LoginForm = (props) => {
 
-    handleSubmit(event) {
-        event.preventDefault();   
-        this.props.form.validateFields((err, values) => {
-            if (!err) {
-                const loginRequest = Object.assign({}, values);
-                login(loginRequest)
-                .then(response => {
-                    localStorage.setItem(ACCESS_TOKEN, response.accessToken);
-                    this.props.onLogin();
-                }).catch(error => {
-                    if(error.status === 401) {
-                        notification.error({
-                            message: 'Polling App',
-                            description: 'Your Username or Password is incorrect. Please try again!'
-                        });                    
-                    } else {
-                        notification.error({
-                            message: 'Polling App',
-                            description: error.message || 'Sorry! Something went wrong. Please try again!'
-                        });                                            
-                    }
-                });
+    const handleSubmit = (values) => {
+        const loginRequest = Object.assign({}, values);
+        
+        console.log(loginRequest);
+
+        login(loginRequest)
+        .then(response => {
+            localStorage.setItem(ACCESS_TOKEN, response.accessToken);
+            props.onLogin();
+        }).catch(error => {
+            if(error.status === 401) {
+                notification.error({
+                    message: 'ReadingOcean',
+                    description: 'Your Username or Password is incorrect. Please try again!'
+                });                    
+            } else {
+                notification.error({
+                    message: 'ReadingOcean',
+                    description: error.message || 'Sorry! Something went wrong. Please try again!'
+                });                                            
             }
         });
     }
+    
+    const onFinishFailed = (errorInfo) => {
+        console.log('Failed:', errorInfo);
+    };
 
-    render() {
-        const { getFieldDecorator } = this.props.form;
-        return (
-            <Form onSubmit={this.handleSubmit} className="login-form">
-                <FormItem>
-                    {getFieldDecorator('usernameOrEmail', {
-                        rules: [{ required: true, message: 'Please input your username or email!' }],
-                    })(
-                    <Input 
-                        prefix={<Icon type="user" />}
-                        size="large"
-                        name="usernameOrEmail" 
-                        placeholder="Email" />    
-                    )}
-                </FormItem>
-                <FormItem>
-                {getFieldDecorator('password', {
-                    rules: [{ required: true, message: 'Please input your Password!' }],
-                })(
-                    <Input 
-                        prefix={<Icon type="lock" />}
-                        size="large"
-                        name="password" 
-                        type="password" 
-                        placeholder="Password"  />                        
-                )}
-                </FormItem>
-                <FormItem>
-                    <Button type="primary" htmlType="submit" size="large" className="login-form-button">Login</Button>
-                    Or <Link to="/signup">register now!</Link>
-                </FormItem>
-            </Form>
-        );
-    }
+    const layout = {
+        labelCol: {
+          span: 8,
+        },
+        wrapperCol: {
+          span: 16,
+        },
+      };
+    const tailLayout = {
+    wrapperCol: {
+        offset: 8,
+        span: 16,
+    },
+    };
+
+    return (
+        <Form {...layout}  name="basic" initialValues={{ remember: true, }} 
+            onFinish={handleSubmit}
+            onFinishFailed={onFinishFailed}
+      >
+            <Form.Item label="Username" name="username" rules={[{ required: true, message: 'Please input your username!' }]}>
+            <Input />
+            </Form.Item>
+    
+            <Form.Item  label="Password"  name="password" rules={[{required: true, message: 'Please input your password!' }]}>
+            <Input.Password />
+            </Form.Item>
+    
+            <Form.Item {...tailLayout} name="remember" valuePropName="checked">
+            <Checkbox>Remember me</Checkbox>
+            </Form.Item>
+    
+            <Form.Item {...tailLayout}>
+            <Button type="primary" htmlType="submit">
+                Submit
+            </Button>
+            </Form.Item>
+      </Form>
+    );
+    
 }
-
 
 export default Login;

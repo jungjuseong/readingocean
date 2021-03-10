@@ -54,11 +54,12 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest request) {
 
-        final String name = request.getUsername();
+        final String username = request.getUsername();
         final String password = request.getPassword();
 
+        logger.info(username);
         Authentication auth = provider.authenticate(
-                new UsernamePasswordAuthenticationToken(name, password)
+                new UsernamePasswordAuthenticationToken(username, password)
         );
 
         String token = tokenProvider.generateToken(auth);

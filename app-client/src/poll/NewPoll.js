@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import { createPoll } from '../util/APIUtils';
 import { MAX_CHOICES, POLL_QUESTION_MAX_LENGTH, POLL_CHOICE_MAX_LENGTH } from '../constants';
 import './NewPoll.css';  
-import { Form, Input, Button, Icon, Select, Col, notification } from 'antd';
+import { Form, Input, Button, Select, Col, notification } from 'antd';
+import { PlusOutlined, CloseOutlined } from '@ant-design/icons';
+
 const Option = Select.Option;
 const FormItem = Form.Item;
 const { TextArea } = Input
@@ -70,7 +72,7 @@ class NewPoll extends Component {
                 this.props.handleLogout('/login', 'error', 'You have been logged out. Please login create poll.');    
             } else {
                 notification.error({
-                    message: 'Polling App',
+                    message: 'ReadingOcean Admin',
                     description: error.message || 'Sorry! Something went wrong. Please try again!'
                 });              
             }
@@ -191,7 +193,7 @@ class NewPoll extends Component {
                         {choiceViews}
                         <FormItem className="poll-form-row">
                             <Button type="dashed" onClick={this.addChoice} disabled={this.state.choices.length === MAX_CHOICES}>
-                                <Icon type="plus" /> Add a choice
+                                <PlusOutlined/> Add a choice
                             </Button>
                         </FormItem>
                         <FormItem className="poll-form-row">
@@ -256,7 +258,7 @@ function PollChoice(props) {
 
             {
                 props.choiceNumber > 1 ? (
-                <Icon
+                <CloseOutlined
                     className="dynamic-delete-button"
                     type="close"
                     disabled={props.choiceNumber <= 1}

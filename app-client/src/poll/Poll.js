@@ -1,6 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
 import './Poll.css';
-import { Avatar, Icon } from 'antd';
+import { Avatar } from 'antd';
+import { CheckCircleOutlined } from '@ant-design/icons';
+
 import { Link } from 'react-router-dom';
 import { getAvatarColor } from '../util/Colors';
 import { formatDateTime } from '../util/Helpers';
@@ -8,26 +10,21 @@ import { formatDateTime } from '../util/Helpers';
 import { Radio, Button } from 'antd';
 const RadioGroup = Radio.Group;
 
-class Poll extends Component {
-    calculatePercentage = (choice) => {
-        if(this.props.poll.totalVotes === 0) {
-            return 0;
-        }
-        return (choice.voteCount*100)/(this.props.poll.totalVotes);
-    };
+function Poll(props) {
 
-    isSelected = (choice) => {
-        return this.props.poll.selectedChoice === choice.id;
-    }
+    const { poll } = props;
 
-    getWinningChoice = () => {
-        return this.props.poll.choices.reduce((prevChoice, currentChoice) => 
-            currentChoice.voteCount > prevChoice.voteCount ? currentChoice : prevChoice, 
+    const calculatePercentage = (choice) =>  (poll.totalVotes === 0) ? 0 : (choice.voteCount*100)/(poll.totalVotes);
+    
+    const isSelected = (choice) =>  poll.selectedChoice === choice.id;
+    
+    const getWinningChoice = () => 
+        poll.choices.reduce((prevChoice, currentChoice) => 
+            (currentChoice.voteCount > prevChoice.voteCount) ? currentChoice : prevChoice, 
             {voteCount: -Infinity}
         );
-    }
-
-    getTimeRemaining = (poll) => {
+    
+    const getTimeRemaining = (poll) => {
         const expirationTime = new Date(poll.expirationDateTime).getTime();
         const currentTime = new Date().getTime();
     
@@ -39,89 +36,87 @@ class Poll extends Component {
     
         let timeRemaining;
     
-        if(days > 0) {
+        if(days > 0) 
             timeRemaining = days + " days left";
-        } else if (hours > 0) {
+        else if (hours > 0) 
             timeRemaining = hours + " hours left";
-        } else if (minutes > 0) {
+        else if (minutes > 0)
             timeRemaining = minutes + " minutes left";
-        } else if(seconds > 0) {
+        else if(seconds > 0)
             timeRemaining = seconds + " seconds left";
-        } else {
+        else
             timeRemaining = "less than a second left";
-        }
         
         return timeRemaining;
     }
 
-    render() {
-        const pollChoices = [];
-        if(this.props.poll.selectedChoice || this.props.poll.expired) {
-            const winningChoice = this.props.poll.expired ? this.getWinningChoice() : null;
+    
+    const pollChoices = [];
+    if(poll.selectedChoice || poll.expired) {
+        const winningChoice = poll.expired ? getWinningChoice() : null;
 
-            this.props.poll.choices.forEach(choice => {
-                pollChoices.push(<CompletedOrVotedPollChoice 
-                    key={choice.id} 
-                    choice={choice}
-                    isWinner={winningChoice && choice.id === winningChoice.id}
-                    isSelected={this.isSelected(choice)}
-                    percentVote={this.calculatePercentage(choice)} 
-                />);
-            });                
-        } else {
-            this.props.poll.choices.forEach(choice => {
-                pollChoices.push(<Radio className="poll-choice-radio" key={choice.id} value={choice.id}>{choice.text}</Radio>)
-            })    
-        }        
-        return (
-            <div className="poll-content">
-                <div className="poll-header">
-                    <div className="poll-creator-info">
-                        <Link className="creator-link" to={`/users/${this.props.poll.createdBy.username}`}>
-                            <Avatar className="poll-creator-avatar" 
-                                style={{ backgroundColor: getAvatarColor(this.props.poll.createdBy.name)}} >
-                                {this.props.poll.createdBy.name[0].toUpperCase()}
-                            </Avatar>
-                            <span className="poll-creator-name">
-                                {this.props.poll.createdBy.name}
-                            </span>
-                            <span className="poll-creator-username">
-                                @{this.props.poll.createdBy.username}
-                            </span>
-                            <span className="poll-creation-date">
-                                {formatDateTime(this.props.poll.creationDateTime)}
-                            </span>
-                        </Link>
-                    </div>
-                    <div className="poll-question">
-                        {this.props.poll.question}
-                    </div>
+        poll.choices.forEach(choice => {
+            pollChoices.push(<CompletedOrVotedPollChoice 
+                key={choice.id} 
+                choice={choice}
+                isWinner={winningChoice && choice.id === winningChoice.id}
+                isSelected={isSelected(choice)}
+                percentVote={calculatePercentage(choice)} 
+            />);
+        });                
+    } else {
+        poll.choices.forEach(choice => {
+            pollChoices.push(<Radio className="poll-choice-radio" key={choice.id} value={choice.id}>{choice.text}</Radio>)
+        })    
+    }        
+    return (
+        <div className="poll-content">
+            <div className="poll-header">
+                <div className="poll-creator-info">
+                    <Link className="creator-link" to={`/users/${poll.createdBy.username}`}>
+                        <Avatar className="poll-creator-avatar" 
+                            style={{ backgroundColor: getAvatarColor(poll.createdBy.name)}} >
+                            {poll.createdBy.name[0].toUpperCase()}
+                        </Avatar>
+                        <span className="poll-creator-name">
+                            {poll.createdBy.name}
+                        </span>
+                        <span className="poll-creator-username">
+                            @{poll.createdBy.username}
+                        </span>
+                        <span className="poll-creation-date">
+                            {formatDateTime(poll.creationDateTime)}
+                        </span>
+                    </Link>
                 </div>
-                <div className="poll-choices">
-                    <RadioGroup 
-                        className="poll-choice-radio-group" 
-                        onChange={this.props.handleVoteChange} 
-                        value={this.props.currentVote}>
-                        { pollChoices }
-                    </RadioGroup>
-                </div>
-                <div className="poll-footer">
-                    { 
-                        !(this.props.poll.selectedChoice || this.props.poll.expired) ?
-                        (<Button className="vote-button" disabled={!this.props.currentVote} onClick={this.props.handleVoteSubmit}>Vote</Button>) : null 
-                    }
-                    <span className="total-votes">{this.props.poll.totalVotes} votes</span>
-                    <span className="separator">•</span>
-                    <span className="time-left">
-                        {
-                            this.props.poll.expired ? "Final results" :
-                            this.getTimeRemaining(this.props.poll)
-                        }
-                    </span>
+                <div className="poll-question">
+                    {poll.question}
                 </div>
             </div>
-        );
-    }
+            <div className="poll-choices">
+                <RadioGroup 
+                    className="poll-choice-radio-group" 
+                    onChange={props.handleVoteChange} 
+                    value={props.currentVote}>
+                    { pollChoices }
+                </RadioGroup>
+            </div>
+            <div className="poll-footer">
+                { 
+                    !(poll.selectedChoice || poll.expired) ?
+                    (<Button className="vote-button" disabled={!props.currentVote} onClick={props.handleVoteSubmit}>Vote</Button>) : null 
+                }
+                <span className="total-votes">{poll.totalVotes} votes</span>
+                <span className="separator">•</span>
+                <span className="time-left">
+                    {
+                        poll.expired ? "Final results" :
+                        getTimeRemaining(poll)
+                    }
+                </span>
+            </div>
+        </div>
+    );
 }
 
 function CompletedOrVotedPollChoice(props) {
@@ -135,11 +130,7 @@ function CompletedOrVotedPollChoice(props) {
                     {props.choice.text}
                 </span>
                 {
-                    props.isSelected ? (
-                    <Icon
-                        className="selected-choice-icon"
-                        type="check-circle-o"
-                    /> ): null
+                    props.isSelected ? (<CheckCircleOutlined className="selected-choice-icon"/> ): null
                 }    
             </span>
             <span className={props.isWinner ? 'cv-choice-percent-chart winner': 'cv-choice-percent-chart'} 
