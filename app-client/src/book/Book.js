@@ -1,87 +1,40 @@
-import React, { Component } from 'react';
+import React from 'react';
 import './Book.css';
-import { Avatar, Icon } from 'antd';
+
+import { Avatar } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { getAvatarColor } from '../util/Colors';
 import { formatDateTime } from '../util/Helpers';
 
-import { Radio, Button } from 'antd';
-const RadioGroup = Radio.Group;
+function Book(props) {   
+    
+    const {book} = props;
 
-class Book extends Component {
-    render() {      
-        return (
-            <div className="poll-content">
-                <div className="poll-header">
-                    <div className="poll-creator-info">
-                        <Link className="creator-link" to={`/users/${this.props.book.username}`}>
-                            <Avatar className="poll-creator-avatar" 
-                                style={{ backgroundColor: getAvatarColor(this.props.book.createdBy.username)}} >
-                                {this.props.book.createdBy.username[0].toUpperCase()}
-                            </Avatar>
-                            <span className="poll-creator-username">
-                                @{this.props.book.createdBy.username}
-                            </span>
-                            <span className="poll-creation-date">
-                                {formatDateTime(this.props.book.creationDateTime)}
-                            </span>
-                        </Link>
-                    </div>
-                    <div className="poll-question">
-                        {this.props.poll.question}
-                    </div>
+    return (
+        <div className="book-content">
+            <div className="book-header">
+                <div className="book-title">
+                    {book.title}
                 </div>
-                <div className="poll-choices">
-                    <RadioGroup 
-                        className="poll-choice-radio-group" 
-                        onChange={this.props.handleVoteChange} 
-                        value={this.props.currentVote}>
-                        { pollChoices }
-                    </RadioGroup>
-                </div>
-                <div className="poll-footer">
-                    { 
-                        !(this.props.poll.selectedChoice || this.props.poll.expired) ?
-                        (<Button className="vote-button" disabled={!this.props.currentVote} onClick={this.props.handleVoteSubmit}>Vote</Button>) : null 
-                    }
-                    <span className="total-votes">{this.props.poll.totalVotes} votes</span>
-                    <span className="separator">•</span>
-                    <span className="time-left">
-                        {
-                            this.props.poll.expired ? "Final results" :
-                            this.getTimeRemaining(this.props.poll)
-                        }
-                    </span>
+                <div className="book-creator-info">
+                    <Link className="creator-link" to={`/users/${book.publisher}`}>
+                        <Avatar className="book-creator-avatar" 
+                            style={{ backgroundColor: getAvatarColor(book.publisher)}} >
+                            {book.publisher.slice(0,4)}
+                        </Avatar>
+                        <span className="book-creator-username">
+                            @{book.authors}
+                        </span>
+                        <span className="book-creation-date">
+                            {formatDateTime(book.createdAt)}
+                        </span>
+                    </Link>
                 </div>
             </div>
-        );
-    }
-}
-
-function CompletedOrVotedPollChoice(props) {
-    return (
-        <div className="cv-poll-choice">
-            <span className="cv-poll-choice-details">
-                <span className="cv-choice-percentage">
-                    {Math.round(props.percentVote * 100) / 100}%
-                </span>            
-                <span className="cv-choice-text">
-                    {props.choice.text}
-                </span>
-                {
-                    props.isSelected ? (
-                    <Icon
-                        className="selected-choice-icon"
-                        type="check-circle-o"
-                    /> ): null
-                }    
-            </span>
-            <span className={props.isWinner ? 'cv-choice-percent-chart winner': 'cv-choice-percent-chart'} 
-                style={{width: props.percentVote + '%' }}>
-            </span>
         </div>
     );
+    
 }
 
-
-export default Poll;
+export default Book;

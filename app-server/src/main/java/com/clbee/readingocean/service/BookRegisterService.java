@@ -1,4 +1,4 @@
-package com.clbee.readingocean.util;
+package com.clbee.readingocean.service;
 
 import com.clbee.readingocean.exception.AppException;
 import com.clbee.readingocean.model.Book;
@@ -24,16 +24,24 @@ import java.nio.file.Files;
 import java.util.*;
 
 @Component
-public class FileResourcesUtils {
+public class BookRegister {
 
     @Autowired
     BookService bookService;
 
+    @Autowired
+    PasswordEncoder encoder;
+
     @Value("${datafile.books}")
     private String fileName;
 
+    @Value("${users.admin}")
+    private String admins;
+
+    @Value("${users.subscriber}")
+    private String subscribers;
+
     // get a file from the resources folder
-    // works everywhere, IDEA, unit test and JAR file.
     public InputStream getFileFromResourceAsStream() {
         // The class loader that loaded the class
         ClassLoader classLoader = getClass().getClassLoader();
@@ -46,25 +54,22 @@ public class FileResourcesUtils {
             return inputStream;
     }
 
-    private void printUniquePublishers(Set<String> set) {
+    public void addUsers() {
+        final String password = encoder.encode("54321");
+        String[] adminList = admins.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+        for(String admin : adminList)
+            bookService.createUserAccount(admin.trim(), password, RoleName.ROLE_ADMIN);
 
-        Iterator<String> iterator = set.iterator();
-
-        while (iterator.hasNext()) {
-            String key = iterator.next();
-            bookService.createUserAccount(key);
-            //System.out.printf("INSERT INTO users (name, publisher, password) VALUES ('%s','%s','%s');\n", key, key, password);
-        }
+        String[] subscriberList = subscribers.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+        for(String subscriber : subscriberList)
+            bookService.createUserAccount(subscriber.trim(), password, RoleName.ROLE_SUBSCRIBER);
     }
 
-    // process input stream
-    public void processInputStream(InputStream is) {
-
-        Set<String> userSet = new HashSet<String>();
-        //List all = new ArrayList<String[]>();
+    public void addBooks() {
+        InputStream is = getFileFromResourceAsStream();
+        final String password = encoder.encode("12345");
 
         try (InputStreamReader streamReader = new InputStreamReader(is, StandardCharsets.UTF_8);
-
              BufferedReader reader = new BufferedReader(streamReader)) {
                 String line;
                 while ((line = reader.readLine()) != null) {
@@ -75,11 +80,9 @@ public class FileResourcesUtils {
                     String publisher = splitted[4].replace("\"", "").trim();
                     String isbn = splitted[5].replace("\"", "").trim();
 
-                    bookService.createUserAccount(splitted[4]);
+                    bookService.createUserAccount(splitted[4], password, RoleName.ROLE_PUBLISHER);
                     Book book = bookService.createBook(title,isbn,authors,publisher);
-                    //System.out.printf("INSERT INTO books (title, isbn, publisher, authors) VALUES ('%s','%s','%s','%s');\n",splitted[2],splitted[5],splitted[4],splitted[3]);
                 }
-                //printUniquePublishers(userSet);
         } catch (IOException e) {
             e.printStackTrace();
         }

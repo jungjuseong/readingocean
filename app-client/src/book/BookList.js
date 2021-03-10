@@ -1,17 +1,21 @@
-import React, { Component } from 'react';
+import React , { useState, useEffect } from 'react';
 import { getAllBooks, getUserCreatedBooks } from '../util/APIUtils';
 import Book from './Book';
-import { castVote } from '../util/APIUtils';
+
 import LoadingIndicator  from '../common/LoadingIndicator';
-import { Button, Icon, notification } from 'antd';
+
+import { Button } from 'antd';
+import { PlusOutlined } from '@ant-design/icons'
+
 import { BOOK_LIST_SIZE } from '../constants';
 import { withRouter } from 'react-router-dom';
 import './BookList.css';
 
-class BookList extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
+function BookList(props) {
+
+    const {username, isAuthenticated, currentUser} = props;
+
+    const [bookState,setBookState] = useState({
             books: [],
             page: 0,
             size: 10,
@@ -19,34 +23,26 @@ class BookList extends Component {
             totalPages: 0,
             last: true,
             isLoading: false
-        };
-        this.loadBookList = this.loadBookList.bind(this);
-        this.handleLoadMore = this.handleLoadMore.bind(this);
-    }
+    });
 
-    loadBookList(page = 0, size = BOOK_LIST_SIZE) {
-        let promise;
-        if(this.props.username) {
-            if(this.props.type === 'USER_CREATED_BOOKS') {
-                promise = getUserCreatedBooks(this.props.username, page, size);
-            }
-        } else {
-            promise = getAllBooks(page, size);
-        }
+    const loadBooks = (page = 0, size = BOOK_LIST_SIZE) => {
+
+        let promise = (currentUser) ? getUserCreatedBooks(currentUser.id, page, size) : getAllBooks(page, size);
 
         if(!promise) {
             return;
         }
 
-        this.setState({
+        setBookState({
+            ...bookState,
             isLoading: true
         });
 
         promise            
         .then(response => {
-            const books = this.state.books.slice();
+            const books = bookState.books.slice();
 
-            this.setState({
+            setBookState({
                 books: books.concat(response.content),
                 page: response.page,
                 size: response.size,
@@ -56,68 +52,59 @@ class BookList extends Component {
                 isLoading: false
             })
         }).catch(error => {
-            this.setState({
+            setBookState({
+                ...bookState,
                 isLoading: false
             })
         });  
         
     }
 
-    componentDidMount() {
-        this.loadBookList();
-    }
+    useEffect(() => {
+        loadBooks();
 
-    componentDidUpdate(nextProps) {
-        if(this.props.isAuthenticated !== nextProps.isAuthenticated) {
-            // Reset State
-            this.setState({
+        return () => {
+            setBookState({
                 books: [],
                 page: 0,
                 size: 10,
                 totalElements: 0,
                 totalPages: 0,
                 last: true,
+                currentVotes: [],
                 isLoading: false
-            });    
-            this.loadBookList();
-        }
-    }
+            })
+          };
+    }, [isAuthenticated]);
 
-    handleLoadMore() {
-        this.loadBookList(this.state.page + 1);
-    }
+    const handleLoadMore = () => loadBooks(bookState.page + 1);
 
-    render() {
-        const views = [];
-        this.state.books.forEach((book) => {
-            views.push(<Book key={book.id} book={book} />)            
-        });
-
-        return (
-            <div className="polls-container">
-                {views}
-                {
-                    !this.state.isLoading && this.state.books.length === 0 ? (
-                        <div className="no-books-found">
-                            <span>No Books Found.</span>
-                        </div>    
-                    ): null
-                }  
-                {
-                    !this.state.isLoading && !this.state.last ? (
-                        <div className="load-more-books"> 
-                            <Button type="dashed" onClick={this.handleLoadMore} disabled={this.state.isLoading}>
-                                <Icon type="plus" /> Load more
-                            </Button>
-                        </div>): null
-                }              
-                {
-                    this.state.isLoading ? 
-                    <LoadingIndicator />: null                     
-                }
-            </div>
-        );
-    }
+    return (
+        <div className="polls-container">
+            {    
+                bookState.books.map((book, index) => <Book key={index} book={book}/>)
+            }
+            {
+                !bookState.isLoading && bookState.books.length === 0 ? (
+                    <div className="no-books-found">
+                        <span>No Books Found.</span>
+                    </div>    
+                ): null
+            }  
+            {
+                (!bookState.isLoading && !bookState.last) ? (
+                    <div className="load-more-books"> 
+                        <Button type="dashed" onClick={handleLoadMore} disabled={bookState.isLoading}>
+                            <PlusOutlined /> Load more
+                        </Button>
+                    </div>): null
+            }              
+            {
+                bookState.isLoading ? <LoadingIndicator />: null                     
+            }
+        </div>
+    );
+    
 }
 
 export default withRouter(BookList);

@@ -96,6 +96,8 @@ export function getCurrentUser() {
 }
 
 export function getUserProfile(username) {
+    console.log('getUserProfile');
+
     return request({
         url: API_BASE_URL + "/users/" + username,
         method: 'GET'
@@ -105,6 +107,7 @@ export function getUserProfile(username) {
 export function getUserCreatedPolls(username, page, size) {
     page = page || 0;
     size = size || POLL_LIST_SIZE;
+    console.log('getUserCreatedPolls');
 
     return request({
         url: API_BASE_URL + "/users/" + username + "/polls?page=" + page + "&size=" + size,
@@ -115,7 +118,7 @@ export function getUserCreatedPolls(username, page, size) {
 export function getUserCreatedBooks(username, page, size) {
     page = page || 0;
     size = size || BOOK_LIST_SIZE;
-
+    console.log('getUserCreatedBooks');
     return request({
         url: API_BASE_URL + "/users/" + username + "/books?page=" + page + "&size=" + size,
         method: 'GET'
@@ -125,6 +128,7 @@ export function getUserCreatedBooks(username, page, size) {
 export function getUserVotedPolls(username, page, size) {
     page = page || 0;
     size = size || POLL_LIST_SIZE;
+    console.log('getUserVotedPolls');
 
     return request({
         url: API_BASE_URL + "/users/" + username + "/votes?page=" + page + "&size=" + size,

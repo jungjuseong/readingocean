@@ -5,7 +5,7 @@ import { Route, withRouter, Switch} from 'react-router-dom';
 import { getCurrentUser } from '../util/APIUtils';
 import { ACCESS_TOKEN } from '../constants';
 
-import PollList from '../poll/PollList';
+import BookList from '../book/BookList';
 import NewPoll from '../poll/NewPoll';
 import Login from '../user/login/Login';
 import Signup from '../user/signup/Signup';
@@ -52,7 +52,7 @@ function App(props) {
   }
 
   useEffect(() => {
-    //loadCurrentUser()
+    loadCurrentUser()
   },[]);
 
   const handleLogout = (redirectTo="/", notificationType="success", description="You're successfully logged out.") => {
@@ -90,7 +90,7 @@ function App(props) {
             <div className="container">
               <Switch>      
                 <Route exact path="/" 
-                  render={(props) => <PollList isAuthenticated={appState.isAuthenticated} 
+                  render={(props) => <BookList isAuthenticated={appState.isAuthenticated} 
                       currentUser={appState.currentUser} handleLogout={handleLogout} {...props} />}>
                 </Route>
                 <Route path="/login" 

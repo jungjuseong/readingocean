@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, withRouter }from 'react-router-dom';
 import './AppHeader.css';
 import pollIcon from '../poll.svg';
-import { Layout, Menu, Dropdown, PageHeader } from 'antd';
+import { Layout, Menu, Dropdown } from 'antd';
 import { HomeFilled, UserOutlined, DownOutlined } from '@ant-design/icons';
 
 const { Header } = Layout;
@@ -27,7 +27,7 @@ function AppHeader(props) {
         </Link>
       </Menu.Item>,
       <Menu.Item key="/profile" className="profile-menu">
-          <ProfileDropdownMenu currentUser handleMenuClick/>
+          <ProfileDropdownMenu currentUser={currentUser} handleMenuClick={handleMenuClick}/>
       </Menu.Item>
     ];
   
@@ -41,18 +41,17 @@ function AppHeader(props) {
     ];
 
     return (
-      <PageHeader className="app-header">
+      <Header className="app-header">
         <div className="container">
           <div className="app-title" >
             <Link to="/">ReadingOcean</Link>
           </div>
-          <Menu className="app-menu"  mode="vertical" selectedKeys={[location.pathname]} style={{ lineHeight: '64px' }} >
+          <Menu className="app-menu"  mode="horizontal" selectedKeys={[location.pathname]} style={{ lineHeight: '64px' }} >
               { currentUser ? menuWithLoggedIn : menuWithoutLogin }
           </Menu>
         </div>
-      </PageHeader>
+      </Header>
     );
-    
 }
 
 function ProfileDropdownMenu(props) {
@@ -65,28 +64,23 @@ function ProfileDropdownMenu(props) {
         <div className="user-full-name-info">
           {currentUser.name}
         </div>
-        <div className="username-info">
-          @{currentUser.username}
-        </div>
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item key="profile" className="dropdown-item">
         <Link to={`/users/${currentUser.username}`}>Profile</Link>
       </Menu.Item>
       <Menu.Item key="logout" className="dropdown-item">
-        Logout
+        <Link>Logout</Link>
       </Menu.Item>
     </Menu>
   );
 
   return (
-    <Dropdown 
-      overlay={dropdownMenu} 
-      trigger={['click']}
-      getPopupContainer = { () => document.getElementsByClassName('profile-menu')[0]}>
-      <a className="ant-dropdown-link">
-        <UserOutlined className="nav-icon" style={{marginRight: 0}} /> <DownOutlined />
-      </a>
+    <Dropdown overlay={dropdownMenu} trigger={['click']} 
+      getPopupContainer = { () => document.getElementsByClassName('profile-menu')[0] }>
+        <a className="ant-dropdown-link">
+          <UserOutlined className="nav-icon" style={{marginRight: 0}} /> <DownOutlined />
+        </a>
     </Dropdown>
   );
 }
