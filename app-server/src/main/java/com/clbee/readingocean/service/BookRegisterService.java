@@ -1,36 +1,27 @@
 package com.clbee.readingocean.service;
 
-import com.clbee.readingocean.exception.AppException;
 import com.clbee.readingocean.model.Book;
-import com.clbee.readingocean.model.Role;
 import com.clbee.readingocean.model.RoleName;
-import com.clbee.readingocean.model.User;
-import com.clbee.readingocean.repository.BookRepository;
-import com.clbee.readingocean.repository.RoleRepository;
-import com.clbee.readingocean.repository.UserRepository;
-import com.clbee.readingocean.service.BookService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.*;
 
-@Component
-public class BookRegister {
+@Service
+public class BookRegisterService {
+
+    private static final Logger logger = LoggerFactory.getLogger(BookRegisterService.class);
 
     @Autowired
     BookService bookService;
 
     @Autowired
-    PasswordEncoder encoder;
+    PasswordEncoder passwordEncoder;
 
     @Value("${datafile.books}")
     private String fileName;
@@ -42,7 +33,7 @@ public class BookRegister {
     private String subscribers;
 
     // get a file from the resources folder
-    public InputStream getFileFromResourceAsStream() {
+    private InputStream getFileFromResourceAsStream() {
         // The class loader that loaded the class
         ClassLoader classLoader = getClass().getClassLoader();
         InputStream inputStream = classLoader.getResourceAsStream(fileName);
@@ -55,7 +46,8 @@ public class BookRegister {
     }
 
     public void addUsers() {
-        final String password = encoder.encode("54321");
+        final String password = this.passwordEncoder.encode("54321");
+
         String[] adminList = admins.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
         for(String admin : adminList)
             bookService.createUserAccount(admin.trim(), password, RoleName.ROLE_ADMIN);
@@ -67,7 +59,7 @@ public class BookRegister {
 
     public void addBooks() {
         InputStream is = getFileFromResourceAsStream();
-        final String password = encoder.encode("12345");
+        final String password = this.passwordEncoder.encode("12345");
 
         try (InputStreamReader streamReader = new InputStreamReader(is, StandardCharsets.UTF_8);
              BufferedReader reader = new BufferedReader(streamReader)) {
@@ -87,5 +79,4 @@ public class BookRegister {
             e.printStackTrace();
         }
     }
-
 }

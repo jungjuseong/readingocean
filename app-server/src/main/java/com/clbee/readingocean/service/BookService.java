@@ -55,22 +55,22 @@ public class BookService {
         }
 
         List<BookResponse> bookResponses = books.map(book -> {
-            return ModelMapper.mapBookToBookResponse(book, null);
+            return ModelMapper.mapBookToBookResponse(book, book.getUser());
         }).getContent();
 
         return new PagedResponse<>(bookResponses, books.getNumber(),
                 books.getSize(), books.getTotalElements(), books.getTotalPages(), books.isLast());
     }
 
-    public PagedResponse<BookResponse> getBooksCreatedBy(String username, CustomUserDetails currentUser, int page, int size) {
+    public PagedResponse<BookResponse> getBooksCreatedBy(Long userId, CustomUserDetails currentUser, int page, int size) {
         validatePageNumberAndSize(page, size);
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", userId));
 
-        // Retrieve all books created by the given username
+        // Retrieve all books created by the given userId
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
-        Page<Book> books = bookRepository.findByUserId(user.getId(), pageable);
+        Page<Book> books = bookRepository.findByUserId(userId, pageable);
 
         if (books.getNumberOfElements() == 0) {
             return new PagedResponse<>(Collections.emptyList(), books.getNumber(),
@@ -105,19 +105,14 @@ public class BookService {
         return new Book();
     }
 
-    public void createUserAccount(String name) {
-        // Creating user's account
+    public void createUserAccount(String name, String password, RoleName role) {
 
         if (!userRepository.existsByUsername(name)) {
-
-            final String password = passwordEncoder.encode("12345");
             User user = new User(name, name, password);
-
-            Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-                    .orElseThrow(() -> new AppException("User Role not set."));
+            Role userRole = roleRepository.findByName(role)
+                    .orElseThrow(() -> new AppException("Role not set."));
 
             user.setRoles(Collections.singleton(userRole));
-
             userRepository.save(user);
         }
     }
@@ -134,12 +129,10 @@ public class BookService {
     }
 
     private void validatePageNumberAndSize(int page, int size) {
-        if(page < 0) {
+        if(page < 0)
             throw new BadRequestException("Page number cannot be less than zero.");
-        }
 
-        if(size > AppConstants.MAX_PAGE_SIZE) {
+        if(size > AppConstants.MAX_PAGE_SIZE)
             throw new BadRequestException("Page size must not be greater than " + AppConstants.MAX_PAGE_SIZE);
-        }
     }
 }

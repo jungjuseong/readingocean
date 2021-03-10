@@ -1,6 +1,6 @@
 package com.clbee.readingocean;
 
-import com.clbee.readingocean.util.BookRegister;
+import com.clbee.readingocean.service.BookRegisterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,23 +12,24 @@ import java.util.TimeZone;
 
 @SpringBootApplication
 @EntityScan(basePackageClasses = {
-		ReadingOceanApp.class,
+		ReadingOcean.class,
 		Jsr310JpaConverters.class
 })
-public class ReadingOceanApp {
+public class ReadingOcean {
 
-	@Autowired BookRegister br;
+	@Autowired
+	BookRegisterService registerService;
 
 	@PostConstruct
 	void init() {
 
 		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 
-		br.addUsers();
-		br.addBooks();
+//		registerService.addUsers();
+//		registerService.addBooks();
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(ReadingOceanApp.class, args);
+		SpringApplication.run(ReadingOcean.class, args);
 	}
 }

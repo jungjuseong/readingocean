@@ -8,6 +8,7 @@ import com.clbee.readingocean.repository.PollRepository;
 import com.clbee.readingocean.repository.UserRepository;
 import com.clbee.readingocean.repository.VoteRepository;
 import com.clbee.readingocean.security.CustomUserDetails;
+import com.clbee.readingocean.service.BookService;
 import com.clbee.readingocean.service.PollService;
 import com.clbee.readingocean.security.CurrentUser;
 import com.clbee.readingocean.util.AppConstants;
@@ -31,12 +32,15 @@ public class UserController {
     private VoteRepository voteRepository;
 
     @Autowired
+    private BookService bookService;
+
+    @Autowired
     private PollService pollService;
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping("/user/me")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN','PUBLISHER')")
     public UserSummary getCurrentUser(@CurrentUser CustomUserDetails currentUser) {
         UserSummary userSummary = new UserSummary(currentUser.getId(), currentUser.getUsername(), currentUser.getName());
         return userSummary;
@@ -65,6 +69,14 @@ public class UserController {
         UserProfile userProfile = new UserProfile(user.getId(), user.getUsername(), user.getName(), user.getCreatedAt(), pollCount, voteCount);
 
         return userProfile;
+    }
+
+    @GetMapping("/users/{user_id}/books")
+    public PagedResponse<BookResponse> getBooksCreatedBy(@PathVariable(value = "user_id") Long userId,
+                                                         @CurrentUser CustomUserDetails currentUser,
+                                                         @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                                         @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+        return bookService.getBooksCreatedBy(userId, currentUser, page, size);
     }
 
     @GetMapping("/users/{username}/polls")

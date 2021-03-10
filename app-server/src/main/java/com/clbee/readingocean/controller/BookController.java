@@ -44,7 +44,7 @@ public class BookController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<?> createBook(@Valid @RequestBody BookRequest request) {
         Book book = bookService.createBook(request);
 
@@ -57,7 +57,7 @@ public class BookController {
     }
 
 
-    @GetMapping("/{bookI}")
+    @GetMapping("/{bookId}")
     public BookResponse getBookById(@CurrentUser CustomUserDetails currentUser,  @PathVariable Long bookId) {
         return bookService.getBookById(bookId, currentUser);
     }
