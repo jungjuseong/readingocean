@@ -52,8 +52,7 @@ class NewPoll extends Component {
         });
     }
 
-    handleSubmit(event) {
-        event.preventDefault();
+    handleSubmit(values) {
         const pollData = {
             question: this.state.question.text,
             choices: this.state.choices.map(choice => {
@@ -179,7 +178,7 @@ class NewPoll extends Component {
             <div className="new-poll-container">
                 <h1 className="page-title">Create Poll</h1>
                 <div className="new-poll-content">
-                    <Form onSubmit={this.handleSubmit} className="create-poll-form">
+                    <Form onFinish={this.handleSubmit} className="create-poll-form">
                         <FormItem validateStatus={this.state.question.validateStatus}
                             help={this.state.question.errorMsg} className="poll-form-row">
                         <TextArea 

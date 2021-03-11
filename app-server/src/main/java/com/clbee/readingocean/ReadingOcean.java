@@ -25,8 +25,8 @@ public class ReadingOcean {
 
 		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 
-//		registerService.addUsers();
-//		registerService.addBooks();
+		registerService.addUsers();
+		registerService.addBooks();
 	}
 
 	public static void main(String[] args) {

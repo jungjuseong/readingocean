@@ -55,7 +55,7 @@ function App(props) {
     loadCurrentUser()
   },[]);
 
-  const handleLogout = (redirectTo="/", notificationType="success", description="You're successfully logged out.") => {
+  const handleLogout = (redirectTo="/", notificationType="success", description="로그아웃 성공") => {
     localStorage.removeItem(ACCESS_TOKEN);
 
     setAppState({
@@ -64,20 +64,27 @@ function App(props) {
       isAuthenticated: false
     });
 
-    props.history.push(redirectTo);
-    
     notification[notificationType]({
       message: 'Reading Ocean Admin',
       description: description,
     });
+
+    props.history.push(redirectTo);
+
   }
 
   const handleLogin = () => {
+
+    loadCurrentUser();
+
+    console.log(appState.currentUser);
+
+    let message =  (appState.currentUser) ? appState.currentUser.username +  "님. 환영합니다" : ""
     notification.success({
       message: 'Reading Ocean',
-      description: "You're successfully logged in.",
+      description: message
     });
-    loadCurrentUser();
+
     props.history.push("/");
   }
 

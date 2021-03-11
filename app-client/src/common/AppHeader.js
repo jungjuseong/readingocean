@@ -70,14 +70,13 @@ function ProfileDropdownMenu(props) {
         <Link to={`/users/${currentUser.username}`}>Profile</Link>
       </Menu.Item>
       <Menu.Item key="logout" className="dropdown-item">
-        <Link>Logout</Link>
+        Logout
       </Menu.Item>
     </Menu>
   );
 
   return (
-    <Dropdown overlay={dropdownMenu} trigger={['click']} 
-      getPopupContainer = { () => document.getElementsByClassName('profile-menu')[0] }>
+    <Dropdown overlay={dropdownMenu} trigger={['click'] }>
         <a className="ant-dropdown-link">
           <UserOutlined className="nav-icon" style={{marginRight: 0}} /> <DownOutlined />
         </a>

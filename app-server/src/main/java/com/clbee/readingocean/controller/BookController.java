@@ -26,12 +26,6 @@ import java.net.URI;
 public class BookController {
 
     @Autowired
-    private BookRepository bookRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private BookService bookService;
 
     private static final Logger logger = LoggerFactory.getLogger(BookController.class);
@@ -55,7 +49,6 @@ public class BookController {
         return ResponseEntity.created(location)
                 .body(new ApiResponse(true, "Book Created Successfully"));
     }
-
 
     @GetMapping("/{bookId}")
     public BookResponse getBookById(@CurrentUser CustomUserDetails currentUser,  @PathVariable Long bookId) {

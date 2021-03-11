@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
     List<Book> findByIdIn(List<Long> bookIds);
-    Optional<Book> findByIsbn(String isbn);
+    List<Book> findByIsbn(String isbn);
     Page<Book> findByUserId(Long userId, Pageable pageable);
     Boolean existsByIsbn(String isbn);
 }

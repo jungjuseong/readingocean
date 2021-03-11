@@ -43,7 +43,7 @@ CREATE TABLE `books` (
 
 CREATE TABLE `downloads` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `domain_address` varchar(20) NOT NULL,
+  `subscriber` varchar(20) NOT NULL,
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `fk_downloads_book_id` (`book_id`),
